@@ -1,0 +1,17 @@
+# Experiments Log
+
+## Experiment 1
+- Features: Flatten
+- Model: KNN
+- Parameters:
+- Accuracy:
+- F1:
+- Notes:
+
+## Experiment 2
+- Features: Flatten
+- Model: Logistic Regression
+- Parameters:
+- Accuracy:
+- F1:
+- Notes:
