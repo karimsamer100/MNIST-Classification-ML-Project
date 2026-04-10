@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 def load_mnist_csv(file_path):
     # no header in this dataset  so we tell pandas explicitly
@@ -33,14 +32,56 @@ def normalize_pixels(X):
 
     return X_normalized
 
+
+
+
 def split_train_validation(X, y, val_size=0.2, random_state=42):
-    # split the available training data into train and validation
-    X_train, X_val, y_train, y_val = train_test_split(
-        X,
-        y,
-        test_size=val_size,
-        random_state=random_state,
-        stratify=y
-    )
+    # basic checks
+    if len(X) != len(y):
+        raise ValueError("X and y must have the same number of samples")
+
+    if not (0 < val_size < 1):
+        raise ValueError("val_size must be between 0 and 1")
+
+    # random generator for reproducibility
+    rng = np.random.default_rng(random_state)
+
+    train_indices = []  #which rows go to training
+    val_indices = []    #which rows go to validation
+
+    # stratified split: split each class separately
+    unique_classes = np.unique(y)
+
+    for current_class in unique_classes:
+        class_indices = np.where(y == current_class)[0] #find class indices
+
+        # shuffle indices of this class
+        shuffled_class_indices = rng.permutation(class_indices)
+
+        # number of validation samples from this class
+        num_val_class = int(len(shuffled_class_indices) * val_size)
+
+        # make sure validation is not empty if class has enough samples
+        if num_val_class == 0 and len(shuffled_class_indices) > 1:
+            num_val_class = 1
+
+        class_val_indices = shuffled_class_indices[:num_val_class]
+        class_train_indices = shuffled_class_indices[num_val_class:]
+
+        val_indices.extend(class_val_indices)
+        train_indices.extend(class_train_indices)
+
+    # convert to numpy arrays
+    train_indices = np.array(train_indices)
+    val_indices = np.array(val_indices)
+
+    # final shuffle so samples are mixed
+    train_indices = rng.permutation(train_indices)
+    val_indices = rng.permutation(val_indices)
+
+    X_train = X[train_indices]
+    X_val = X[val_indices]
+    y_train = y[train_indices]
+    y_val = y[val_indices]
 
     return X_train, X_val, y_train, y_val
