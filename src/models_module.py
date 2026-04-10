@@ -126,3 +126,84 @@ class LogisticRegression:
         y_predicted_labels = np.where(y_predicted >= 0.5, 1, 0)
 
         return y_predicted_labels
+    
+
+#=========================================== Fasel wa nowasel :) ================================================================
+
+class GaussianNaiveBayes:
+    def __init__(self):
+        # unique class labels
+        self.classes = None
+
+        # mean of each feature for each class
+        self.mean = None
+
+        # variance of each feature for each class
+        self.variance = None
+
+        # prior probability of each class
+        self.priors = None
+
+    def fit(self, X, y):
+        # get unique class labels
+        self.classes = np.unique(y)
+
+        num_classes = len(self.classes)
+        num_features = X.shape[1]
+
+        # initialize arrays to store statistics
+        self.mean = np.zeros((num_classes, num_features))
+        self.variance = np.zeros((num_classes, num_features))
+        self.priors = np.zeros(num_classes)
+
+        for index, current_class in enumerate(self.classes):
+            # get all samples that belong to the current class
+            X_class = X[y == current_class]
+
+            # compute mean, variance, and prior for this class
+            self.mean[index, :] = np.mean(X_class, axis=0)
+            self.variance[index, :] = np.var(X_class, axis=0)
+            self.priors[index] = X_class.shape[0] / X.shape[0]
+
+    def gaussian_probability(self, class_index, x):
+        # small value added to variance to avoid division by zero
+        epsilon = 1e-9
+
+        mean = self.mean[class_index]
+        variance = self.variance[class_index] + epsilon
+
+        numerator = np.exp(-((x - mean) ** 2) / (2 * variance))
+        denominator = np.sqrt(2 * np.pi * variance)
+
+        return numerator / denominator
+
+    def predict_one(self, x):
+        class_scores = []
+
+        for class_index, current_class in enumerate(self.classes):
+            # start with log prior
+            log_prior = np.log(self.priors[class_index])
+
+            # get Gaussian probabilities for all features
+            probabilities = self.gaussian_probability(class_index, x)
+
+            # use log to avoid numerical problems
+            log_likelihood = np.sum(np.log(probabilities + 1e-9))
+
+            # total score for this class
+            class_score = log_prior + log_likelihood
+            class_scores.append(class_score)
+
+        # choose class with highest score
+        predicted_class = self.classes[np.argmax(class_scores)]
+
+        return predicted_class
+
+    def predict(self, X):
+        predictions = []
+
+        for x in X:
+            prediction = self.predict_one(x)
+            predictions.append(prediction)
+
+        return np.array(predictions)
