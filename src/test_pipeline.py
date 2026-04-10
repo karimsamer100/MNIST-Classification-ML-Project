@@ -4,6 +4,7 @@ from data_module import (
     normalize_pixels,
     split_train_validation
 )
+from models_module import KNN
 
 # load original training data
 X_train_full, y_train_full = load_mnist_csv("MNIST-data/mnist_train.csv")
@@ -41,3 +42,32 @@ print("Test labels shape:", y_test.shape)
 print("Test unique labels:", set(y_test))
 print("Test min pixel:", X_test.min())
 print("Test max pixel:", X_test.max())
+
+# test KNN fit only
+knn = KNN(k=3)
+knn.fit(X_train, y_train)
+
+print("\nKNN test:")
+print("k value:", knn.k)
+print("Stored train shape:", knn.X_train.shape)
+print("Stored labels shape:", knn.y_train.shape)
+
+# test Euclidean distance
+distance = knn.euclidean_distance(X_train[0], X_train[1])
+
+print("\nDistance test:")
+print("Distance between first two training samples:", distance)
+
+# test predict_one on a single validation sample
+single_prediction = knn.predict_one(X_val[0])
+
+print("\nSingle prediction test:")
+print("Predicted label:", single_prediction)
+print("Actual label:", y_val[0])
+
+# test predict on a small validation subset
+small_predictions = knn.predict(X_val[:5])
+
+print("\nMultiple predictions test:")
+print("Predictions:", small_predictions)
+print("Actual labels:", y_val[:5])

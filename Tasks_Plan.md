@@ -1,15 +1,15 @@
 # Tasks Plan
 
 ## Setup
-- [ ] Create project folders
-- [ ] Load MNIST dataset
-- [ ] Verify data shape
+- [d] Create project folders
+- [d] Load MNIST dataset
+- [d] Verify data shape
 
 ## Data Processing
-- [ ] Separate X and y
-- [ ] Filter classes (0 and 1)
-- [ ] Normalize data
-- [ ] Split dataset
+- [d] Separate X and y
+- [d] Filter classes (0 and 1)
+- [d] Normalize data
+- [d] Split dataset
 
 ## Models
 - [ ] Implement KNN
