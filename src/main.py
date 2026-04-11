@@ -12,7 +12,8 @@ from evaluation_module import (
     accuracy_score,
     precision_score_binary,
     recall_score_binary,
-    f1_score_binary
+    f1_score_binary,
+    print_confusion_matrix
 )
 
 

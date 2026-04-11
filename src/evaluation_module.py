@@ -65,3 +65,13 @@ def f1_score_binary(y_true, y_pred):
 
     f1 = 2 * (precision * recall) / (precision + recall)
     return f1
+
+def print_confusion_matrix(y_true, y_pred):
+    cm = confusion_matrix_binary(y_true, y_pred)
+
+    print("\nConfusion Matrix:")
+    print("          Predicted")
+    print("          0     1")
+    print(f"Actual 0  {cm[0,0]:<5} {cm[0,1]}")
+    print(f"Actual 1  {cm[1,0]:<5} {cm[1,1]}")
+    
