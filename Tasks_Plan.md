@@ -12,19 +12,19 @@
 - [d] Split dataset
 
 ## Models
-- [ ] Implement KNN
-- [ ] Test KNN
+- [d] Implement KNN
+- [d] Test KNN
 
-- [ ] Implement Logistic Regression
-- [ ] Test Logistic Regression
+- [d] Implement Logistic Regression
+- [d] Test Logistic Regression
 
-- [ ] Implement Naive Bayes
-- [ ] Test Naive Bayes
+- [d] Implement Naive Bayes
+- [d] Test Naive Bayes
 
 ## Evaluation
-- [ ] Compute metrics
-- [ ] Confusion matrix
-- [ ] Compare models
+- [d] Compute metrics
+- [d] Confusion matrix
+- [d] Compare models
 
 ## Improvements
 - [ ] Apply PCA

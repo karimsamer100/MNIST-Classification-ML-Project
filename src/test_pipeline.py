@@ -7,7 +7,13 @@ from data_module import (
 
 import numpy as np
 from models_module import KNN, LogisticRegression, GaussianNaiveBayes
-
+from evaluation_module import (
+    accuracy_score,
+    confusion_matrix_binary,
+    precision_score_binary,
+    recall_score_binary,
+    f1_score_binary
+)
 # load original training data
 X_train_full, y_train_full = load_mnist_csv("MNIST-data/mnist_train.csv")
 
@@ -95,7 +101,6 @@ print("Train subset class counts:", np.bincount(y_train_subset))
 print("Validation subset class counts:", np.bincount(y_val_subset))
 print("Test subset class counts:", np.bincount(y_test_subset))
 
-
 #========================
 
 # test Gaussian Naive Bayes initialization
@@ -161,3 +166,144 @@ print("\nGaussian Naive Bayes random test subset check:")
 print("Test accuracy:", gnb_test_accuracy)
 print("First 20 test predictions:", gnb_test_predictions[:20])
 print("First 20 actual test labels:", y_test_subset[:20])
+
+# test accuracy function with a simple example
+y_true_example = np.array([1, 0, 1, 1, 0])
+y_pred_example = np.array([1, 0, 0, 1, 0])
+
+example_accuracy = accuracy_score(y_true_example, y_pred_example)
+
+print("\nAccuracy function test:")
+print("y_true:", y_true_example)
+print("y_pred:", y_pred_example)
+print("Accuracy:", example_accuracy)
+
+# test confusion matrix function with a simple example
+example_conf_matrix = confusion_matrix_binary(y_true_example, y_pred_example)
+
+print("\nConfusion matrix test:")
+print(example_conf_matrix)
+
+# test precision, recall, and f1 with the same simple example
+example_precision = precision_score_binary(y_true_example, y_pred_example)
+example_recall = recall_score_binary(y_true_example, y_pred_example)
+example_f1 = f1_score_binary(y_true_example, y_pred_example)
+
+print("\nPrecision / Recall / F1 test:")
+print("Precision:", example_precision)
+print("Recall:", example_recall)
+print("F1 score:", example_f1)
+
+# evaluate KNN on validation subset
+knn = KNN(k=3)
+knn.fit(X_train_subset, y_train_subset)
+knn_predictions = knn.predict(X_val_subset)
+
+print("\nKNN evaluation:")
+print("Accuracy:", accuracy_score(y_val_subset, knn_predictions))
+print("Precision:", precision_score_binary(y_val_subset, knn_predictions))
+print("Recall:", recall_score_binary(y_val_subset, knn_predictions))
+print("F1 score:", f1_score_binary(y_val_subset, knn_predictions))
+print("Confusion matrix:")
+print(confusion_matrix_binary(y_val_subset, knn_predictions))
+
+# evaluate Logistic Regression on validation subset
+log_reg = LogisticRegression(learning_rate=0.1, num_iterations=1000)
+log_reg.fit(X_train_subset, y_train_subset)
+log_reg_predictions = log_reg.predict(X_val_subset)
+
+print("\nLogistic Regression evaluation:")
+print("Accuracy:", accuracy_score(y_val_subset, log_reg_predictions))
+print("Precision:", precision_score_binary(y_val_subset, log_reg_predictions))
+print("Recall:", recall_score_binary(y_val_subset, log_reg_predictions))
+print("F1 score:", f1_score_binary(y_val_subset, log_reg_predictions))
+print("Confusion matrix:")
+print(confusion_matrix_binary(y_val_subset, log_reg_predictions))
+
+# evaluate Gaussian Naive Bayes on validation subset
+gnb = GaussianNaiveBayes()
+gnb.fit(X_train_subset, y_train_subset)
+gnb_predictions = gnb.predict(X_val_subset)
+
+print("\nGaussian Naive Bayes evaluation:")
+print("Accuracy:", accuracy_score(y_val_subset, gnb_predictions))
+print("Precision:", precision_score_binary(y_val_subset, gnb_predictions))
+print("Recall:", recall_score_binary(y_val_subset, gnb_predictions))
+print("F1 score:", f1_score_binary(y_val_subset, gnb_predictions))
+print("Confusion matrix:")
+print(confusion_matrix_binary(y_val_subset, gnb_predictions))
+
+
+
+# final comparison on validation subset
+print("\nFinal model comparison on validation subset:")
+
+models_results = {
+    "KNN": {
+        "accuracy": accuracy_score(y_val_subset, knn_predictions),
+        "precision": precision_score_binary(y_val_subset, knn_predictions),
+        "recall": recall_score_binary(y_val_subset, knn_predictions),
+        "f1": f1_score_binary(y_val_subset, knn_predictions)
+    },
+    "Logistic Regression": {
+        "accuracy": accuracy_score(y_val_subset, log_reg_predictions),
+        "precision": precision_score_binary(y_val_subset, log_reg_predictions),
+        "recall": recall_score_binary(y_val_subset, log_reg_predictions),
+        "f1": f1_score_binary(y_val_subset, log_reg_predictions)
+    },
+    "Gaussian Naive Bayes": {
+        "accuracy": accuracy_score(y_val_subset, gnb_predictions),
+        "precision": precision_score_binary(y_val_subset, gnb_predictions),
+        "recall": recall_score_binary(y_val_subset, gnb_predictions),
+        "f1": f1_score_binary(y_val_subset, gnb_predictions)
+    }
+}
+
+   
+    # final evaluation on test set
+print("\nFinal model evaluation on TEST SET:")
+
+# KNN
+knn = KNN(k=3)
+knn.fit(X_train_subset, y_train_subset)
+knn_test_predictions = knn.predict(X_test_subset)
+
+# Logistic Regression
+log_reg = LogisticRegression(learning_rate=0.1, num_iterations=1000)
+log_reg.fit(X_train_subset, y_train_subset)
+log_reg_test_predictions = log_reg.predict(X_test_subset)
+
+# Gaussian Naive Bayes
+gnb = GaussianNaiveBayes()
+gnb.fit(X_train_subset, y_train_subset)
+gnb_test_predictions = gnb.predict(X_test_subset)
+
+# store results
+test_results = {
+    "KNN": {
+        "accuracy": accuracy_score(y_test_subset, knn_test_predictions),
+        "precision": precision_score_binary(y_test_subset, knn_test_predictions),
+        "recall": recall_score_binary(y_test_subset, knn_test_predictions),
+        "f1": f1_score_binary(y_test_subset, knn_test_predictions)
+    },
+    "Logistic Regression": {
+        "accuracy": accuracy_score(y_test_subset, log_reg_test_predictions),
+        "precision": precision_score_binary(y_test_subset, log_reg_test_predictions),
+        "recall": recall_score_binary(y_test_subset, log_reg_test_predictions),
+        "f1": f1_score_binary(y_test_subset, log_reg_test_predictions)
+    },
+    "Gaussian Naive Bayes": {
+        "accuracy": accuracy_score(y_test_subset, gnb_test_predictions),
+        "precision": precision_score_binary(y_test_subset, gnb_test_predictions),
+        "recall": recall_score_binary(y_test_subset, gnb_test_predictions),
+        "f1": f1_score_binary(y_test_subset, gnb_test_predictions)
+    }
+}
+
+# print results
+for model_name, metrics in test_results.items():
+    print(f"\n{model_name}:")
+    print("Accuracy:", metrics["accuracy"])
+    print("Precision:", metrics["precision"])
+    print("Recall:", metrics["recall"])
+    print("F1 score:", metrics["f1"])
