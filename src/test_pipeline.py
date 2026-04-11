@@ -4,7 +4,7 @@ from data_module import (
     normalize_pixels,
     split_train_validation
 )
-
+from features_module import apply_pca
 import numpy as np
 from models_module import KNN, LogisticRegression, GaussianNaiveBayes
 from evaluation_module import (
@@ -307,3 +307,82 @@ for model_name, metrics in test_results.items():
     print("Precision:", metrics["precision"])
     print("Recall:", metrics["recall"])
     print("F1 score:", metrics["f1"])
+
+    # test PCA on the current subsets
+X_train_pca, X_val_pca, X_test_pca, pca_model = apply_pca(
+    X_train_subset,
+    X_val_subset,
+    X_test_subset,
+    n_components=50
+)
+
+
+# test manual PCA block 4
+X_train_pca, X_val_pca, X_test_pca, pca_model = apply_pca(
+    X_train_subset,
+    X_val_subset,
+    X_test_subset,
+    n_components=50
+)
+
+print("\nManual PCA block 4 test:")
+print("Original train shape:", X_train_subset.shape)
+print("PCA train shape:", X_train_pca.shape)
+
+print("Original validation shape:", X_val_subset.shape)
+print("PCA validation shape:", X_val_pca.shape)
+
+print("Original test shape:", X_test_subset.shape)
+print("PCA test shape:", X_test_pca.shape)
+
+print("Components shape:", pca_model.components.shape)
+print("Explained variance shape:", pca_model.explained_variance.shape)
+print("Explained variance ratio shape:", pca_model.explained_variance_ratio.shape)
+
+print("First 10 explained variance values:", pca_model.explained_variance[:10])
+print("First 10 explained variance ratios:", pca_model.explained_variance_ratio[:10])
+print("Total explained variance ratio:", np.sum(pca_model.explained_variance_ratio))
+
+
+
+print("=========================================================")
+
+
+# =========================
+# MODELS ON PCA FEATURES
+# =========================
+
+print("\nModels evaluation AFTER PCA:")
+
+# KNN
+knn = KNN(k=3)
+knn.fit(X_train_pca, y_train_subset)
+knn_pca_predictions = knn.predict(X_val_pca)
+
+print("\nKNN (PCA):")
+print("Accuracy:", accuracy_score(y_val_subset, knn_pca_predictions))
+print("Precision:", precision_score_binary(y_val_subset, knn_pca_predictions))
+print("Recall:", recall_score_binary(y_val_subset, knn_pca_predictions))
+print("F1:", f1_score_binary(y_val_subset, knn_pca_predictions))
+
+# Logistic Regression
+log_reg = LogisticRegression(learning_rate=0.1, num_iterations=1000)
+log_reg.fit(X_train_pca, y_train_subset)
+log_reg_pca_predictions = log_reg.predict(X_val_pca)
+
+print("\nLogistic Regression (PCA):")
+print("Accuracy:", accuracy_score(y_val_subset, log_reg_pca_predictions))
+print("Precision:", precision_score_binary(y_val_subset, log_reg_pca_predictions))
+print("Recall:", recall_score_binary(y_val_subset, log_reg_pca_predictions))
+print("F1:", f1_score_binary(y_val_subset, log_reg_pca_predictions))
+
+# Gaussian Naive Bayes
+gnb = GaussianNaiveBayes()
+gnb.fit(X_train_pca, y_train_subset)
+gnb_pca_predictions = gnb.predict(X_val_pca)
+
+print("\nGaussian Naive Bayes (PCA):")
+print("Accuracy:", accuracy_score(y_val_subset, gnb_pca_predictions))
+print("Precision:", precision_score_binary(y_val_subset, gnb_pca_predictions))
+print("Recall:", recall_score_binary(y_val_subset, gnb_pca_predictions))
+print("F1:", f1_score_binary(y_val_subset, gnb_pca_predictions))
