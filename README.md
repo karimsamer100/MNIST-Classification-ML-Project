@@ -1,263 +1,257 @@
-# MNIST Image Classification Project
+# 🧠 MNIST Image Classification — From Scratch ML Pipeline
 
-This repository contains a complete machine learning pipeline for handwritten digit classification using the MNIST dataset. The project is organized into two development phases:
+> A complete end-to-end Machine Learning system built **from scratch** to classify handwritten digits using classical ML algorithms — with advanced optimization and feature engineering.
 
-- `Phase 1`: binary classification for digits `0` vs `1`
-- `Phase 2`: multi-class classification for digits `0-9`
+---
 
-The implementation focuses on understanding core machine learning concepts by building the main models and feature pipeline from scratch with NumPy, while using standard Python tools for data loading, plotting, and CSV-based experiment outputs.
+## 🚀 Project Overview
 
-## Project Highlights
+This project implements a **full machine learning pipeline** for image classification on the MNIST dataset, following a rigorous engineering and scientific approach.
 
-- End-to-end MNIST classification workflow
-- Clean separation of data, features, models, evaluation, and experiment scripts
-- From-scratch implementations of:
-  - K-Nearest Neighbors (KNN)
-  - Logistic Regression
-  - Gaussian Naive Bayes
-  - Principal Component Analysis (PCA)
-- Binary and multi-class evaluation pipelines
-- Saved figures, tables, and summary logs for reporting
+It was developed as part of the **CSE382: Introduction to Machine Learning** major project, focusing on:
 
-## Repository Structure
+* Mathematical understanding
+* Implementation from scratch
+* Experimental evaluation
+* Model improvement techniques
 
-```text
-ML Project/
-+-- MNIST-data/
-|   +-- mnist_train.csv
-|   \-- mnist_test.csv
-+-- docs/
-|   +-- CSE382_MajorTask_Spring2026.pdf
-|   +-- phase1/
-|   |   +-- phase1_Project_Description.md
-|   |   \-- phase1_Tasks_Plan.md
-|   \-- phase2/
-|       +-- Phase2_Description.md
-|       \-- Phase2_Workflow_Guide.md
-+-- results/
-|   +-- phase1/
-|   |   +-- figures/
-|   |   \-- tables/
-|   \-- phase2/
-|       +-- figures/
-|       +-- logs/
-|       \-- tables/
-\-- src/
-    +-- phase1/
-    |   +-- data_module.py
-    |   +-- evaluation_module.py
-    |   +-- features_module.py
-    |   +-- gen_results.py
-    |   +-- main.py
-    |   +-- models_module.py
-    |   \-- test_pipeline.py
-    \-- phase2/
-        +-- data_module.py
-        +-- evaluation_module.py
-        +-- features_module.py
-        +-- gen_results.py
-        +-- main.py
-        +-- models_module.py
-        \-- test_pipeline.py
+---
+
+## 🎯 Problem Statement
+
+* **Input:** 28×28 grayscale image → flattened into 784 features
+* **Output:** Digit label ∈ {0, 1, 2, ..., 9}
+* **Task:** Multi-class classification
+
+---
+
+## 🧩 Key Features
+
+✅ Built **completely from scratch** (no sklearn models)
+✅ Modular pipeline design
+✅ Multiple ML algorithms implemented manually
+✅ Feature engineering using PCA
+✅ Hyperparameter tuning
+✅ Regularization analysis
+✅ Clean evaluation pipeline
+✅ Visualization + automated results generation
+
+---
+
+## 🏗️ Project Architecture
+
+```
+📁 src/
+│
+├── data_module.py        # data loading, preprocessing, splitting
+├── models_module.py      # ML models (KNN, Logistic, Naive Bayes)
+├── features_module.py    # PCA implementation
+├── evaluation_module.py  # metrics and evaluation
+│
+├── test_pipeline.py      # experiments & debugging
+├── main.py               # final clean pipeline (for demo)
+├── gen_results.py        # result generation (tables + plots)
+│
+📁 results/
+├── tables/
+├── figures/
+├── logs/
 ```
 
-## Problem Statement
+---
 
-The project uses the MNIST handwritten digit dataset, where each image is represented as a flattened vector of `784` pixel values (`28 x 28` grayscale image).
+## ⚙️ Implemented Models
 
-- Input: flattened pixel vector
-- Output in Phase 1: binary class label for digits `0` and `1`
-- Output in Phase 2: multi-class label for digits `0-9`
+### 🔹 K-Nearest Neighbors (KNN)
 
-## Methodology
+* Distance-based classification
+* Fully implemented from scratch
+* Supports multi-class voting
 
-### Phase 1
+### 🔹 Multiclass Logistic Regression
 
-Phase 1 builds a binary classification baseline:
+* Softmax-based classification
+* Gradient descent optimization
+* Supports L2 Regularization
 
-- Loads MNIST CSV files
-- Filters the dataset to digits `0` and `1`
-- Normalizes pixel values to `[0, 1]`
-- Applies a stratified train/validation split
-- Trains and evaluates:
-  - KNN
-  - Logistic Regression
-  - Gaussian Naive Bayes
-- Compares raw pixel features against PCA-transformed features
+### 🔹 Gaussian Naive Bayes
 
-### Phase 2
+* Probabilistic classifier
+* Assumes feature independence
+* Uses Gaussian likelihood estimation
 
-Phase 2 extends the pipeline to full multi-class classification:
+---
 
-- Uses all digit classes from `0` to `9`
-- Reuses the preprocessing pipeline with stratified splitting
-- Adapts the models for multi-class prediction
-- Evaluates models using multi-class accuracy, precision, recall, and macro F1
-- Compares raw features with PCA-based dimensionality reduction
-- Selects a final model based on validation performance
+## 📊 Feature Engineering — PCA
 
-## Models Implemented
+Custom PCA implementation:
 
-### K-Nearest Neighbors
+* Eigen decomposition of covariance matrix
+* Dimensionality reduction from **784 → 50 features**
+* Preserves ~**83% of total variance**
 
-- Distance-based classifier using Euclidean distance
-- Phase 1: binary prediction
-- Phase 2: majority voting across multi-class neighbors
+> PCA significantly reduces feature correlation and improves certain models.
 
-### Logistic Regression
+---
 
-- Phase 1: binary logistic regression with sigmoid activation
-- Phase 2: multinomial logistic regression with softmax
-- Gradient descent optimization
-- Phase 2 includes optional L2 regularization support through `lambda_reg`
+## 🔬 Experimental Workflow
 
-### Gaussian Naive Bayes
+1. Data loading and normalization
+2. Stratified train/validation/test split
+3. Baseline model evaluation
+4. Hyperparameter tuning (KNN)
+5. Feature engineering (PCA)
+6. Model comparison
+7. Final model selection
+8. Final test evaluation
 
-- Estimates class-wise feature mean, variance, and prior probabilities
-- Uses Gaussian likelihoods for prediction
-- Extended from binary to multi-class classification in Phase 2
+---
 
-### Principal Component Analysis
+## 📈 Results Summary
 
-- Implemented from scratch using covariance matrices and eigen-decomposition
-- Used to reduce dimensionality before model training
-- Phase 2 uses `50` principal components in the main experiments
+### 🧪 Validation Performance (Macro F1)
 
-## Evaluation Metrics
+| Model                | Raw Features | PCA Features |
+| -------------------- | ------------ | ------------ |
+| KNN (k=1)            | ~0.91        | ~0.92        |
+| Logistic Regression  | ~0.90        | ~0.90        |
+| Gaussian Naive Bayes | ~0.35        | ~0.87 🔥     |
 
-### Phase 1
+---
 
-- Accuracy
-- Precision
-- Recall
-- F1-score
-- Confusion matrix
+## 🏆 Final Model
 
-### Phase 2
+**KNN (k=1) + PCA (50 Components)**
 
-- Accuracy
-- Macro precision
-- Macro recall
-- Macro F1-score
-- Multi-class confusion matrix
+### 📊 Final Test Results
 
-## Final Phase 2 Result
+* **Accuracy:** 0.9533
+* **Precision:** 0.9539
+* **Recall:** 0.9533
+* **F1 Score:** 0.9533
 
-The final selected model in Phase 2 is:
+> ⚠️ Test set was used **only once** after model selection to avoid data leakage.
 
-- `KNN (k=1)` with `PCA (50 components)`
+---
 
-Saved final test result from `results/phase2/tables/final_test_result.csv`:
+## 🔍 Key Insights
 
-| Model | Feature Setting | Accuracy | Precision | Recall | F1 |
-| --- | --- | ---: | ---: | ---: | ---: |
-| KNN (k=1) | PCA (50 components) | 0.9533 | 0.9539 | 0.9533 | 0.9533 |
+### 1️⃣ PCA is not just dimensionality reduction
 
-Note: these metrics were computed on a stratified test subset of `300` samples, as documented in `results/phase2/logs/phase2_summary.txt`.
+It also **removes feature correlation**, which:
 
-## Requirements
+* Dramatically improves Gaussian Naive Bayes
+* Slightly improves KNN
+* May not benefit Logistic Regression
 
-This project uses Python 3 and the following libraries:
+---
 
-- `numpy`
-- `pandas`
-- `matplotlib`
+### 2️⃣ Model assumptions matter
 
-Install them with:
+Naive Bayes improved significantly:
+
+```
+F1 Score: 0.35 → 0.87
+```
+
+Because PCA made features more independent.
+
+---
+
+### 3️⃣ Best KNN performance occurs with small k
+
+* Best k = 1
+* Increasing k reduced performance
+
+---
+
+### 4️⃣ Regularization had no noticeable impact
+
+* Indicates **no overfitting**
+* Dataset already well-structured
+
+---
+
+## 📊 Visualizations
+
+### 📈 PCA Explained Variance
+
+* 50 components retain ~83% variance
+* Strong redundancy exists in original feature space
+
+### 📊 Model Comparison
+
+* PCA dramatically boosts Naive Bayes
+* Minor impact on other models
+
+---
+
+## 🧪 Evaluation Metrics
+
+All implemented from scratch:
+
+* Accuracy
+* Precision
+* Recall
+* F1-score
+* Confusion Matrix
+
+Supports **multi-class evaluation**.
+
+---
+
+## 🛠️ Technologies Used
+
+* Python
+* NumPy
+* Pandas
+* Matplotlib
+
+---
+
+## ⚠️ Important Notes
+
+* No external ML libraries (e.g., sklearn models) were used
+* Entire pipeline implemented manually
+* Test set used only once for final evaluation
+* Final results computed on a stratified subset for efficiency
+
+---
+
+## 🧠 What Makes This Project Strong
+
+✔ Full ML pipeline from scratch
+✔ Strong mathematical understanding
+✔ Clean and modular implementation
+✔ Real experimental evaluation
+✔ Clear performance improvements
+✔ Professional visualizations
+✔ No black-box models
+
+---
+
+## 🚀 How to Run
 
 ```bash
-pip install numpy pandas matplotlib
-```
-
-## Dataset Setup
-
-Place the MNIST CSV files inside the `MNIST-data/` directory:
-
-```text
-MNIST-data/
-├── mnist_train.csv
-└── mnist_test.csv
-```
-
-The code expects CSV files where:
-
-- column `0` is the label
-- columns `1-784` are pixel values
-
-## How To Run
-
-Run commands from the repository root.
-
-### Phase 1 pipeline
-
-```bash
-python src/phase1/main.py
-```
-
-### Phase 2 pipeline
-
-```bash
+# Run final pipeline
 python src/phase2/main.py
-```
 
-### Generate Phase 2 result files
-
-```bash
+# Generate results (tables + figures)
 python src/phase2/gen_results.py
 ```
 
-This script generates:
+---
 
-- `results/phase2/tables/validation_comparison.csv`
-- `results/phase2/tables/final_test_result.csv`
-- `results/phase2/figures/validation_f1_comparison.png`
-- `results/phase2/figures/pca_cumulative_variance.png`
-- `results/phase2/logs/phase2_summary.txt`
+## 👨‍💻 Author
 
-## Example Output Artifacts
+**Karim Samer**
 
-The repository already includes generated outputs such as:
+* Computer Engineering Student — AI Track
+* Passionate about Machine Learning, Systems, and Problem Solving
 
-- `results/phase1/figures/model_comparison.png`
-- `results/phase1/figures/pca_variance.png`
-- `results/phase1/tables/final_results.xlsx`
-- `results/phase2/figures/validation_f1_comparison.png`
-- `results/phase2/figures/pca_cumulative_variance.png`
-- `results/phase2/tables/validation_comparison.csv`
-- `results/phase2/tables/final_test_result.csv`
-- `results/phase2/logs/phase2_summary.txt`
+---
 
-## Design Notes
+## ⭐ Final Note
 
-- The project is intentionally modular to make experimentation easier.
-- The main training and evaluation flow lives in `main.py` for each phase.
-- `gen_results.py` is used to export tables, plots, and summary files for reports.
-- `test_pipeline.py` can be used as a sandbox for quick experiments and debugging.
-
-## Limitations
-
-- The current experiments use stratified subsets for faster iteration instead of the full MNIST dataset in every run.
-- There is no `requirements.txt` file yet, so dependencies are listed manually in this README.
-- The code is educational and optimized for clarity and learning more than runtime performance.
-
-## Future Improvements
-
-- Add a `requirements.txt` file for easier environment setup
-- Add unit tests for model and evaluation modules
-- Benchmark on larger subsets or the full dataset
-- Add hyperparameter search utilities
-- Extend feature engineering beyond PCA
-
-## Documentation
-
-Additional project documentation is available in:
-
-- `docs/phase1/phase1_Project_Description.md`
-- `docs/phase1/phase1_Tasks_Plan.md`
-- `docs/phase2/Phase2_Description.md`
-- `docs/phase2/Phase2_Workflow_Guide.md`
-- `docs/CSE382_MajorTask_Spring2026.pdf`
-
-## Project Context
-
-This project is structured like an academic machine learning assignment focused on implementing core classification algorithms, comparing feature representations, and documenting results in a clear experimental workflow.
+This project is not just about achieving high accuracy —
+it is about **understanding, building, and analyzing machine learning systems from the ground up.**
