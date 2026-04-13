@@ -37,15 +37,15 @@ The goal is not only to achieve good accuracy, but to:
 
 ## 🧩 Key Features
 
-✅ Fully implemented **from scratch** (no sklearn models)
-✅ Modular pipeline design
-✅ Custom ML models
-✅ Feature engineering (PCA)
-✅ Hyperparameter tuning
-✅ Regularization analysis
-✅ Multi-class evaluation
-✅ Automated results generation
-✅ Visualization & reporting
+- ✅ Fully implemented **from scratch** (no sklearn models)
+- ✅ Modular pipeline design
+- - ✅ Custom ML models
+- - ✅ Feature engineering (PCA)
+- - ✅ Hyperparameter tuning
+- - ✅ Regularization analysis
+- - ✅ Multi-class evaluation
+- - ✅ Automated results generation
+- - ✅ Visualization & reporting
 
 ---
 
