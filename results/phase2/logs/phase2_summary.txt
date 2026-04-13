@@ -1,0 +1,14 @@
+Phase 2 Summary
+====================
+
+Validation comparison was used for model and feature selection.
+Final chosen model: KNN (k=1) with PCA (50 components).
+
+Final Test Result:
+Accuracy : 0.9533
+Precision: 0.9539
+Recall   : 0.9533
+F1 Score : 0.9533
+
+Important note:
+These final test results were computed on a stratified test subset of 300 samples.
