@@ -347,3 +347,122 @@ best_lambda = max(log_reg_results, key=lambda x: log_reg_results[x]["f1"])
 
 print("\nBest Lambda based on F1:", best_lambda)
 print("Best F1:", round(log_reg_results[best_lambda]["f1"], 4))
+
+
+
+import matplotlib.pyplot as plt
+import os
+
+
+def evaluate_on_same_split(model, X_train_small, y_train_small, X_val, y_val):
+    model.fit(X_train_small, y_train_small)
+
+    train_predictions = model.predict(X_train_small)
+    val_predictions = model.predict(X_val)
+
+    train_accuracy = accuracy_score(y_train_small, train_predictions)
+    val_accuracy = accuracy_score(y_val, val_predictions)
+
+    _, _, train_f1 = precision_recall_f1_multiclass(
+        y_train_small, train_predictions, average="macro"
+    )
+    _, _, val_f1 = precision_recall_f1_multiclass(
+        y_val, val_predictions, average="macro"
+    )
+
+    return {
+        "train_accuracy": train_accuracy,
+        "val_accuracy": val_accuracy,
+        "train_f1": train_f1,
+        "val_f1": val_f1
+    }
+
+
+# =========================
+# LEARNING CURVES
+# =========================
+
+print("\n=========================")
+print("LEARNING CURVES")
+print("=========================")
+
+# training sizes to study overfitting / underfitting
+train_sizes = [200, 500, 1000, 1500, 2000]
+
+knn_train_f1_scores = []
+knn_val_f1_scores = []
+
+log_train_f1_scores = []
+log_val_f1_scores = []
+
+# make sure output folder exists
+os.makedirs("results/phase2/figures", exist_ok=True)
+
+for size in train_sizes:
+    X_small = X_train_subset[:size]
+    y_small = y_train_subset[:size]
+
+    # KNN (best tuned value)
+    knn_model = KNN(k=1)
+    knn_scores = evaluate_on_same_split(
+        knn_model,
+        X_small, y_small,
+        X_val_subset, y_val_subset
+    )
+
+    knn_train_f1_scores.append(knn_scores["train_f1"])
+    knn_val_f1_scores.append(knn_scores["val_f1"])
+
+    # Logistic Regression
+    log_model = MulticlassLogisticRegression(
+        learning_rate=0.1,
+        num_iterations=300,
+        lambda_reg=0.0
+    )
+    log_scores = evaluate_on_same_split(
+        log_model,
+        X_small, y_small,
+        X_val_subset, y_val_subset
+    )
+
+    log_train_f1_scores.append(log_scores["train_f1"])
+    log_val_f1_scores.append(log_scores["val_f1"])
+
+    print(f"\nTraining Size = {size}")
+    print(f"KNN -> Train F1: {knn_scores['train_f1']:.4f}, Val F1: {knn_scores['val_f1']:.4f}")
+    print(f"Logistic Regression -> Train F1: {log_scores['train_f1']:.4f}, Val F1: {log_scores['val_f1']:.4f}")
+
+# -------------------------
+# plot KNN learning curve
+# -------------------------
+plt.figure(figsize=(10, 6))
+plt.plot(train_sizes, knn_train_f1_scores, marker="o", label="Training F1")
+plt.plot(train_sizes, knn_val_f1_scores, marker="o", label="Validation F1")
+plt.xlabel("Training Set Size")
+plt.ylabel("Macro F1 Score")
+plt.title("Learning Curve - KNN (k=1)")
+plt.ylim(0, 1.05)
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig("results/phase2/figures/learning_curve_knn.png")
+plt.close()
+
+# -------------------------
+# plot Logistic Regression learning curve
+# -------------------------
+plt.figure(figsize=(10, 6))
+plt.plot(train_sizes, log_train_f1_scores, marker="o", label="Training F1")
+plt.plot(train_sizes, log_val_f1_scores, marker="o", label="Validation F1")
+plt.xlabel("Training Set Size")
+plt.ylabel("Macro F1 Score")
+plt.title("Learning Curve - Multiclass Logistic Regression")
+plt.ylim(0, 1.05)
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.savefig("results/phase2/figures/learning_curve_logistic.png")
+plt.close()
+
+print("\nSaved: results/phase2/figures/learning_curve_knn.png")
+print("Saved: results/phase2/figures/learning_curve_logistic.png")

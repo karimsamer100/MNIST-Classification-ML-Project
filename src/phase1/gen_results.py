@@ -1,104 +1,221 @@
-import os
-import csv
 import numpy as np
-import matplotlib.pyplot as plt
+
+from data_module import (
+    load_mnist_csv,
+    filter_binary_classes,
+    normalize_pixels,
+    split_train_validation,
+)
+
+from models_module import KNN, LogisticRegression, GaussianNaiveBayes
+from evaluation_module import (
+    accuracy_score,
+    precision_score_binary,
+    recall_score_binary,
+    f1_score_binary,
+)
 
 
-def save_final_results_table():
-    # final compact comparison table using validation results
-    results = [
-        ["Raw", "KNN", 1.0, 1.0, 1.0, 1.0],
-        ["Raw", "Logistic Regression", 1.0, 1.0, 1.0, 1.0],
-        ["Raw", "Gaussian Naive Bayes", 0.99, 0.9822485207100592, 1.0, 0.9910447761194029],
-        ["PCA", "KNN", 1.0, 1.0, 1.0, 1.0],
-        ["PCA", "Logistic Regression", 1.0, 1.0, 1.0, 1.0],
-        ["PCA", "Gaussian Naive Bayes", 0.9833333333333333, 1.0, 0.9698795180722891, 0.9847094801223241],
-    ]
+def stratified_subset(X, y, size, random_state=42):
+    """
+    Take a balanced subset from binary classes.
+    Useful if you want faster experiments.
+    """
+    rng = np.random.default_rng(random_state)
 
-    output_path = "results/tables/final_results.csv"
+    classes = np.unique(y)
+    if len(classes) != 2:
+        raise ValueError("This helper expects binary classification only.")
 
-    # create folder if it does not exist
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    samples_per_class = size // 2
 
-    with open(output_path, mode="w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Setting", "Model", "Accuracy", "Precision", "Recall", "F1"])
-        writer.writerows(results)
+    selected_indices = []
 
-    print("Saved table to:", output_path)
+    for current_class in classes:
+        class_indices = np.where(y == current_class)[0]
 
+        if len(class_indices) < samples_per_class:
+            raise ValueError(
+                f"Not enough samples in class {current_class} "
+                f"to take {samples_per_class} samples."
+            )
 
-def plot_model_comparison():
-    # compare F1 score before and after PCA
-    models = ["KNN", "Logistic Regression", "Gaussian Naive Bayes"]
+        chosen = rng.choice(class_indices, size=samples_per_class, replace=False)
+        selected_indices.extend(chosen)
 
-    raw_f1 = [1.0, 1.0, 0.9910447761194029]
-    pca_f1 = [1.0, 1.0, 0.9847094801223241]
+    selected_indices = np.array(selected_indices)
+    selected_indices = rng.permutation(selected_indices)
 
-    x = np.arange(len(models))
-    width = 0.35
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(x - width / 2, raw_f1, width, label="Raw Features")
-    plt.bar(x + width / 2, pca_f1, width, label="PCA Features")
-
-    plt.xticks(x, models, rotation=10)
-    plt.ylabel("F1 Score")
-    plt.title("Model Comparison Before and After PCA")
-    plt.ylim(0.95, 1.01)
-    plt.legend()
-    plt.tight_layout()
-
-    output_path = "results/figures/model_comparison.png"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path)
-    plt.close()
-
-    print("Saved figure to:", output_path)
+    return X[selected_indices], y[selected_indices]
 
 
-def plot_pca_variance():
-    # explained variance ratios from your PCA run
-    explained_variance_ratio = np.array([
-        0.31690382, 0.09282328, 0.08232690, 0.05536752, 0.03896699,
-        0.03455953, 0.02395175, 0.02104496, 0.01753695, 0.01579020
-    ])
+def evaluate_model(model, X_train, y_train, X_val, y_val, model_name):
+    """
+    Train model, then compare train vs validation performance.
+    This helps us see if there may be overfitting.
+    """
+    model.fit(X_train, y_train)
 
-    # remaining variance distributed across the rest of components
-    total_variance_50 = 0.9066875311639386
-    remaining_variance = total_variance_50 - np.sum(explained_variance_ratio)
+    # predictions on training data
+    y_train_pred = model.predict(X_train)
 
-    # spread remaining variance equally for a simple cumulative plot
-    remaining_components = 40
-    tail = np.full(remaining_components, remaining_variance / remaining_components)
+    # predictions on validation data
+    y_val_pred = model.predict(X_val)
 
-    full_variance = np.concatenate([explained_variance_ratio, tail])
-    cumulative_variance = np.cumsum(full_variance)
+    train_acc = accuracy_score(y_train, y_train_pred)
+    val_acc = accuracy_score(y_val, y_val_pred)
 
-    components = np.arange(1, 51)
+    train_prec = precision_score_binary(y_train, y_train_pred)
+    val_prec = precision_score_binary(y_val, y_val_pred)
 
-    plt.figure(figsize=(10, 6))
-    plt.plot(components, cumulative_variance, marker="o")
-    plt.xlabel("Number of Components")
-    plt.ylabel("Cumulative Explained Variance")
-    plt.title("PCA Cumulative Explained Variance")
-    plt.ylim(0, 1.05)
-    plt.grid(True)
-    plt.tight_layout()
+    train_rec = recall_score_binary(y_train, y_train_pred)
+    val_rec = recall_score_binary(y_val, y_val_pred)
 
-    output_path = "results/figures/pca_variance.png"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    plt.savefig(output_path)
-    plt.close()
+    train_f1 = f1_score_binary(y_train, y_train_pred)
+    val_f1 = f1_score_binary(y_val, y_val_pred)
 
-    print("Saved figure to:", output_path)
+    gap = train_acc - val_acc
+
+    print("=" * 70)
+    print(f"{model_name}")
+    print("=" * 70)
+    print(f"Train Accuracy   : {train_acc:.4f}")
+    print(f"Validation Accuracy: {val_acc:.4f}")
+    print(f"Train Precision  : {train_prec:.4f}")
+    print(f"Validation Precision: {val_prec:.4f}")
+    print(f"Train Recall     : {train_rec:.4f}")
+    print(f"Validation Recall: {val_rec:.4f}")
+    print(f"Train F1         : {train_f1:.4f}")
+    print(f"Validation F1    : {val_f1:.4f}")
+    print(f"Accuracy Gap     : {gap:.4f}")
+
+    # simple interpretation
+    if gap > 0.05:
+        print("Possible Overfitting: training is noticeably better than validation.")
+    elif train_acc < 0.85 and val_acc < 0.85:
+        print("Possible Underfitting: both training and validation are relatively low.")
+    else:
+        print("Generalization looks reasonable.")
+
+    print()
+
+    return {
+        "model": model_name,
+        "train_accuracy": train_acc,
+        "val_accuracy": val_acc,
+        "train_precision": train_prec,
+        "val_precision": val_prec,
+        "train_recall": train_rec,
+        "val_recall": val_rec,
+        "train_f1": train_f1,
+        "val_f1": val_f1,
+        "gap": gap,
+    }
 
 
 def main():
-    save_final_results_table()
-    plot_model_comparison()
-    plot_pca_variance()
-    print("All results files generated successfully.")
+    # =========================
+    # 1) Load training CSV
+    # =========================
+    X, y = load_mnist_csv("MNIST-data/mnist_train.csv")
+
+    # =========================
+    # 2) Binary filter
+    # =========================
+    X, y = filter_binary_classes(X, y, class_1=0, class_2=1)
+
+    # =========================
+    # 3) Normalize
+    # =========================
+    X = normalize_pixels(X)
+
+    # =========================
+    # 4) Train / validation split
+    # =========================
+    X_train, X_val, y_train, y_val = split_train_validation(
+        X, y, val_size=0.2, random_state=42
+    )
+
+    # =========================
+    # 5) Optional subset for speed
+    #    You can remove this if you want full data
+    # =========================
+    X_train_small, y_train_small = stratified_subset(
+        X_train, y_train, size=2000, random_state=42
+    )
+
+    X_val_small, y_val_small = stratified_subset(
+        X_val, y_val, size=300, random_state=42
+    )
+
+    print("=" * 70)
+    print("Overfitting Check on Binary MNIST (0 vs 1)")
+    print("=" * 70)
+    print(f"Train subset shape: {X_train_small.shape}")
+    print(f"Validation subset shape: {X_val_small.shape}")
+    print()
+
+    results = []
+
+    # =========================
+    # 6) KNN
+    # =========================
+    knn = KNN(k=3)
+    results.append(
+        evaluate_model(
+            knn,
+            X_train_small,
+            y_train_small,
+            X_val_small,
+            y_val_small,
+            "KNN (k=3)"
+        )
+    )
+
+    # =========================
+    # 7) Logistic Regression
+    # =========================
+    logistic = LogisticRegression(learning_rate=0.1, num_iterations=1000)
+    results.append(
+        evaluate_model(
+            logistic,
+            X_train_small,
+            y_train_small,
+            X_val_small,
+            y_val_small,
+            "Logistic Regression"
+        )
+    )
+
+    # =========================
+    # 8) Gaussian Naive Bayes
+    # =========================
+    gnb = GaussianNaiveBayes()
+    results.append(
+        evaluate_model(
+            gnb,
+            X_train_small,
+            y_train_small,
+            X_val_small,
+            y_val_small,
+            "Gaussian Naive Bayes"
+        )
+    )
+
+    # =========================
+    # 9) Final compact summary
+    # =========================
+    print("=" * 70)
+    print("Final Summary")
+    print("=" * 70)
+
+    for r in results:
+        print(
+            f"{r['model']:<25} "
+            f"Train Acc: {r['train_accuracy']:.4f} | "
+            f"Val Acc: {r['val_accuracy']:.4f} | "
+            f"Gap: {r['gap']:.4f}"
+        )
 
 
 if __name__ == "__main__":

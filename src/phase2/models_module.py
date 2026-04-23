@@ -169,7 +169,7 @@ class MulticlassLogisticRegression:
 
             # gradients (with L2 regularization)
             dw = (1 / num_samples) * np.dot(X.T, (probabilities - y_one_hot))
-            dw += (self.lambda_reg / num_samples) * self.weights  # 👈 مهم
+            dw += (self.lambda_reg / num_samples) * self.weights  
 
             db = (1 / num_samples) * np.sum(probabilities - y_one_hot, axis=0, keepdims=True)
 

@@ -86,7 +86,7 @@ def main():
     # =========================
 
     raw_models = {
-        "KNN (k=1)": KNN(k=1),
+        "KNN (k=1)": KNN(k=3),
         "Logistic Regression": MulticlassLogisticRegression(
             learning_rate=0.1,
             num_iterations=300,

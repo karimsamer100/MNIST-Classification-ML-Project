@@ -1,2 +1,0 @@
-Chosen Model,Feature Setting,Accuracy,Precision,Recall,F1
-KNN (k=1),PCA (50 components),0.9533,0.9539,0.9533,0.9533

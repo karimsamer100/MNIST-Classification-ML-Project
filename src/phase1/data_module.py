@@ -8,7 +8,7 @@ def load_mnist_csv(file_path):
     # first column is the label (digit)
     y = data.iloc[:, 0].to_numpy(dtype=np.int64)
 
-    # remaining columns are pixel values (28x28 flattened → 784)
+    
     X = data.iloc[:, 1:].to_numpy(dtype=np.float64)
 
     return X, y
