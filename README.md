@@ -1,352 +1,227 @@
-# 🧠 MNIST Image Classification — From Scratch ML Pipeline (Phase 1 & Phase 2)
+# MNIST Image Classification — From-Scratch ML Pipeline
 
-> A complete end-to-end Machine Learning system built **from scratch** to classify handwritten digits — evolving from binary classification (Phase 1) to full multi-class classification (Phase 2).
-
----
-
-## 🚀 Project Overview
-
-This project implements a **full machine learning pipeline from scratch**, developed in two progressive phases:
-
-* **Phase 1:** Binary classification (digits 0 vs 1)
-* **Phase 2:** Multi-class classification (digits 0–9) with improvements
-
-The goal is not only to achieve good accuracy, but to:
-
-* Understand ML algorithms deeply
-* Build everything manually (no black-box models)
-* Analyze model behavior
-* Apply real improvement techniques
+CSE382: Introduction to Machine Learning — Spring 2026
+Major Task Project | Phases 1 & 2
 
 ---
 
-## 🎯 Problem Definition
+## Project Overview
 
-* **Input:** 28×28 grayscale image → 784 features
-* **Output:** Digit label
-
-### Phase 1:
-
-* Binary classification → {0, 1}
-
-### Phase 2:
-
-* Multi-class classification → {0–9}
+A complete machine learning pipeline built entirely from scratch to classify handwritten digits from the MNIST dataset. The project is structured in two phases: binary classification (Phase 1) and full multi-class classification (Phase 2). No external ML libraries are used — all models, preprocessing, PCA, and evaluation metrics are implemented manually.
 
 ---
 
-## 🧩 Key Features
+## Project Structure
 
-- ✅ Fully implemented **from scratch** (no sklearn models)
-- ✅ Modular pipeline design
-- ✅ Custom ML models
-- ✅ Feature engineering (PCA)
-- ✅ Hyperparameter tuning
-- ✅ Regularization analysis
-- ✅ Multi-class evaluation
-- ✅ Automated results generation
-- ✅ Visualization & reporting
-
----
-
-## 🏗️ Project Architecture
-
-
-```text
+```
 ML Project/
-+-- MNIST-data/
-|   +-- mnist_train.csv
-|   \-- mnist_test.csv
-+-- docs/
-|   +-- CSE382_MajorTask_Spring2026.pdf
-|   +-- phase1/
-|   |   +-- phase1_Project_Description.md
-|   |   \-- phase1_Tasks_Plan.md
-|   \-- phase2/
-|       +-- Phase2_Description.md
-|       \-- Phase2_Workflow_Guide.md
-+-- results/
-|   +-- phase1/
-|   |   +-- figures/
-|   |   \-- tables/
-|   \-- phase2/
-|       +-- figures/
-|       +-- logs/
-|       \-- tables/
-\-- src/
-    +-- phase1/
-    |   +-- data_module.py
-    |   +-- evaluation_module.py
-    |   +-- features_module.py
-    |   +-- gen_results.py
-    |   +-- main.py
-    |   +-- models_module.py
-    |   \-- test_pipeline.py
-    \-- phase2/
-        +-- data_module.py
-        +-- evaluation_module.py
-        +-- features_module.py
-        +-- gen_results.py
-        +-- main.py
-        +-- models_module.py
-        \-- test_pipeline.py
+├── MNIST-data/
+│   ├── mnist_train.csv
+│   └── mnist_test.csv
+├── docs/
+│   ├── phase1/
+│   │   ├── phase1_Project_Description.md
+│   │   └── phase1_Tasks_Plan.md
+│   └── phase2/
+│       ├── Phase2_Description.md
+│       └── Phase2_Workflow_Guide.md
+├── results/
+│   ├── phase1/
+│   │   ├── figures/
+│   │   └── tables/
+│   └── phase2/
+│       ├── figures/
+│       ├── logs/
+│       └── tables/
+└── src/
+    ├── phase1/
+    │   ├── data_module.py
+    │   ├── evaluation_module.py
+    │   ├── features_module.py
+    │   ├── gen_results.py
+    │   ├── main.py
+    │   ├── models_module.py
+    │   └── test_pipeline.py
+    └── phase2/
+        ├── data_module.py
+        ├── evaluation_module.py
+        ├── features_module.py
+        ├── gen_results.py
+        ├── main.py
+        ├── models_module.py
+        └── test_pipeline.py
 ```
 
 ---
 
-# 🧪 Phase 1 — Binary Classification
+## Phase 1 — Binary Classification (Digit 0 vs Digit 1)
 
-## 🎯 Objective
+### Objective
 
-Classify digits:
+Distinguish between digit 0 and digit 1 using three from-scratch classifiers, with and without PCA dimensionality reduction.
 
-```
-0 vs 1
-```
+### Dataset Split
 
-## ⚙️ Models Used
+| Set        | Samples | Class 0 | Class 1 |
+|------------|---------|---------|---------|
+| Train      | 10,133  | 4,739   | 5,394   |
+| Validation | 2,532   | 1,184   | 1,348   |
+| Test       | 2,115   | 980     | 1,135   |
 
-* KNN
-* Logistic Regression
+Stratified split, random state = 42. Pixels normalized to [0, 1].
 
-## 🧠 Key Steps
+### Models Implemented
 
-* Data filtering (only classes 0 & 1)
-* Normalization
-* Train/validation split
-* Model training
-* Evaluation
+- K-Nearest Neighbors (KNN) — Euclidean distance, majority vote
+- Logistic Regression — sigmoid, gradient descent, binary cross-entropy
+- Gaussian Naive Bayes — class-conditional Gaussian likelihood, log-space inference
 
-## 📊 Observations
+### PCA
 
-* Very high accuracy (close to 100%)
-* Task is simple due to clear separation
-* Helped validate correctness of implementations
+- Components kept: 50 (from 784)
+- Total explained variance: 90.37%
+- Top component variance ratios: [0.3220, 0.0904, 0.0812, 0.0549, 0.0390, ...]
 
----
+### Results — Validation Set
 
-# 🚀 Phase 2 — Multi-Class Classification
+| Model               | Setting  | Accuracy | Precision | Recall | F1     |
+|---------------------|----------|----------|-----------|--------|--------|
+| KNN (k=3)           | Raw      | 0.9992   | 0.9985    | 1.0000 | 0.9993 |
+| KNN (k=3)           | PCA      | 0.9992   | 0.9985    | 1.0000 | 0.9993 |
+| Logistic Regression | Raw      | 0.9972   | 0.9978    | 0.9970 | 0.9974 |
+| Logistic Regression | PCA      | 0.9976   | 0.9985    | 0.9970 | 0.9978 |
+| Gaussian Naive Bayes| Raw      | 0.9937   | 0.9941    | 0.9941 | 0.9941 |
+| Gaussian Naive Bayes| PCA      | 0.9787   | 1.0000    | 0.9599 | 0.9796 |
 
-## 🎯 Objective
+### Results — Test Set
 
-Classify:
+| Model               | Setting  | Accuracy | Precision | Recall | F1     |
+|---------------------|----------|----------|-----------|--------|--------|
+| KNN (k=3)           | Raw      | 0.9991   | 0.9982    | 1.0000 | 0.9991 |
+| KNN (k=3)           | PCA      | 0.9991   | 0.9982    | 1.0000 | 0.9991 |
+| Logistic Regression | Raw      | 0.9995   | 0.9991    | 1.0000 | 0.9996 |
+| Logistic Regression | PCA      | 0.9991   | 0.9982    | 1.0000 | 0.9991 |
+| Gaussian Naive Bayes| Raw      | 0.9972   | 0.9974    | 0.9974 | 0.9974 |
+| Gaussian Naive Bayes| PCA      | 0.9844   | 1.0000    | 0.9709 | 0.9852 |
 
-```
-0 → 9 (10 classes)
-```
+### Key Observations — Phase 1
 
----
-
-## ⚙️ Models Implemented
-
-### 🔹 K-Nearest Neighbors (KNN)
-
-* Distance-based classification
-* Best performing model
-
-### 🔹 Multiclass Logistic Regression
-
-* Softmax implementation
-* Gradient descent training
-* Supports L2 Regularization
-
-### 🔹 Gaussian Naive Bayes
-
-* Probabilistic model
-* Assumes feature independence
+- All three models achieve near-perfect performance on this binary task due to high visual separability between digits 0 and 1.
+- PCA has minimal effect on KNN and Logistic Regression at this scale — performance is essentially unchanged.
+- Gaussian Naive Bayes degrades slightly after PCA on validation (0.9937 → 0.9787), recovering partially on the test set (0.9972 → 0.9844). This is because PCA introduces correlations among components, partially violating the independence assumption.
+- Logistic Regression achieves the highest raw test F1 (0.9996), slightly outperforming KNN.
 
 ---
 
-## 📊 Feature Engineering — PCA
+## Phase 2 — Multi-Class Classification (Digits 0–9)
 
-* Reduced features:
+### Objective
 
-```
-784 → 50
-```
+Scale the pipeline to 10 classes and improve performance through three techniques: PCA, hyperparameter tuning (KNN), and L2 regularization (Logistic Regression). Learning curve analysis is also included.
 
-* Preserved:
+### Dataset Split
 
-```
-~83% variance
-```
+| Set        | Samples | Classes  |
+|------------|---------|----------|
+| Train      | 48,000  | 0–9      |
+| Validation | 12,000  | 0–9      |
+| Test       | 10,000  | 0–9      |
 
-### 🧠 Why PCA?
+Stratified split, random state = 42. Pixels normalized to [0, 1].
 
-* Reduce dimensionality
-* Remove feature correlation
-* Improve model assumptions
+### Models Implemented
 
----
+- KNN — extended to multi-class majority vote
+- Multiclass Logistic Regression — softmax activation, categorical cross-entropy, gradient descent with optional L2 regularization
+- Gaussian Naive Bayes — extended to 10 classes with per-class Gaussian statistics
 
-## 🔬 Improvements Applied
+### PCA
 
-### 1️⃣ Hyperparameter Tuning (KNN)
+- Components kept: 50 (from 784)
+- Fit on training data only; val/test transformed using training mean and components.
 
-* Tested k values: {1, 3, 5, 7}
-* Best result:
+### Improvement Techniques Applied
 
-```
-k = 1
-```
+**1. Hyperparameter Tuning — KNN**
 
----
+Tested k values {1, 3, 5, 7} on the validation set. Best result: k = 1.
 
-### 2️⃣ PCA (Feature Engineering)
+| k | Validation Macro F1 |
+|---|---------------------|
+| 1 | ~0.92               |
+| 3 | ~0.91               |
+| 5 | ~0.90               |
+| 7 | ~0.89               |
 
-* Reduced dimensionality
-* Improved model performance
-* Huge impact on Naive Bayes
+**2. PCA — Dimensionality Reduction**
 
----
+| Model               | Raw F1 | PCA F1 | Change  |
+|---------------------|--------|--------|---------|
+| KNN (k=1)           | ~0.91  | ~0.92  | +0.01   |
+| Logistic Regression | ~0.90  | ~0.90  | ~0.00   |
+| Gaussian Naive Bayes| ~0.35  | ~0.87  | +0.52   |
 
-### 3️⃣ L2 Regularization
+PCA dramatically improves Naive Bayes by reducing feature correlation, making the independence assumption more valid. KNN improves slightly. Logistic Regression is unaffected.
 
-* Applied to Logistic Regression
-* No significant improvement
-* Indicates low overfitting
+**3. L2 Regularization — Logistic Regression**
 
----
+Tested lambda values {0.0, 0.01, 0.1, 1.0}. No meaningful improvement was observed, indicating the model is not overfitting at the tested training sizes.
 
-## 📈 Results Summary
+**4. Learning Curve Analysis**
 
-### 🧪 Validation (Macro F1)
+Training sizes {200, 500, 1000, 1500, 2000} were evaluated for KNN and Logistic Regression. KNN (k=1) shows a classic overfitting signature — training F1 = 1.0 at all sizes, with a persistent gap to validation F1. Logistic Regression shows steadily converging train/val curves, indicating better generalization behavior.
 
-| Model                | Raw   | PCA      |
-| -------------------- | ----- | -------- |
-| KNN (k=1)            | ~0.91 | ~0.92    |
-| Logistic Regression  | ~0.90 | ~0.90    |
-| Gaussian Naive Bayes | ~0.35 | ~0.87 🔥 |
+### Final Model Selection
 
----
+Model selected on validation performance: **KNN (k=1) with PCA (50 components)**.
 
-## 🏆 Final Model
+### Final Test Results
 
-**KNN (k=1) + PCA**
+| Metric    | Value  |
+|-----------|--------|
+| Accuracy  | 0.9533 |
+| Precision | 0.9539 |
+| Recall    | 0.9533 |
+| F1 Score  | 0.9533 |
 
----
-
-## 📊 Final Test Results
-
-* **Accuracy:** 0.9533
-* **Precision:** 0.9539
-* **Recall:** 0.9533
-* **F1 Score:** 0.9533
-
-> Test set used only once after model selection (no data leakage).
+Test set evaluated once, after model selection was finalized on validation only.
 
 ---
 
-## 🔍 Key Insights
+## Evaluation Metrics (All Implemented Manually)
 
-### 🔥 1. PCA dramatically improves Naive Bayes
-
-```
-F1: 0.35 → 0.87
-```
-
-Reason:
-
-* PCA reduces feature correlation
-* Makes independence assumption more valid
+- Accuracy
+- Precision, Recall, F1-score (binary and macro-averaged multi-class)
+- Confusion matrix (2×2 binary, 10×10 multi-class)
 
 ---
 
-### 📉 2. PCA has mixed effects
+## Technologies
 
-* Improves KNN slightly
-* Slightly reduces Logistic Regression
-
----
-
-### 🎯 3. Best KNN uses small k
-
-```
-k = 1 performs best
-```
+- Python 3
+- NumPy
+- Pandas
+- Matplotlib
 
 ---
 
-### 🧠 4. Regularization not needed
-
-* No overfitting observed
-* Model already stable
-
----
-
-## 📊 Visualizations
-
-* PCA Explained Variance Curve
-* Model Comparison (Raw vs PCA)
-
----
-
-## 🧪 Evaluation Metrics
-
-Implemented manually:
-
-* Accuracy
-* Precision
-* Recall
-* F1-score
-* Confusion Matrix
-
----
-
-## 🛠️ Technologies Used
-
-* Python
-* NumPy
-* Pandas
-* Matplotlib
-
----
-
-## ⚠️ Important Notes
-
-* No ML libraries used (from scratch implementation)
-* Validation used for tuning
-* Test used once for final evaluation
-* Results based on stratified subsets
-
----
-
-## 🧠 What Makes This Project Strong
-
-✔ Full ML pipeline from scratch
-✔ Deep understanding of algorithms
-✔ Real experimental workflow
-✔ Strong performance improvements
-✔ Clean modular code
-✔ Professional results & analysis
-
----
-
-## 🚀 How to Run
+## How to Run
 
 ```bash
-# run final pipeline
+# Phase 1 pipeline
+python src/phase1/main.py
+
+# Phase 2 pipeline
 python src/phase2/main.py
 
-# generate results
+# Generate result tables and figures
+python src/phase1/gen_results.py
 python src/phase2/gen_results.py
 ```
 
 ---
 
-## 👨‍💻 Author
+## Author
 
-**Karim Samer**
-
-Computer Engineering Student
-Interested in Machine Learning & Systems
-
----
-
-## ⭐ Final Note
-
-This project demonstrates not just model performance,
-but the ability to **build, analyze, and improve machine learning systems from the ground up.**
-
-
-
+Karim Samer
+Computer Engineering — CAIE Program
