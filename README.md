@@ -1,14 +1,15 @@
 <div align="center">
 
-```
+<pre>
+
 ███╗   ███╗███╗   ██╗██╗███████╗████████╗
 ████╗ ████║████╗  ██║██║██╔════╝╚══██╔══╝
 ██╔████╔██║██╔██╗ ██║██║███████╗   ██║   
 ██║╚██╔╝██║██║╚██╗██║██║╚════██║   ██║   
 ██║ ╚═╝ ██║██║ ╚████║██║███████║   ██║   
 ╚═╝     ╚═╝╚═╝  ╚═══╝╚═╝╚══════╝   ╚═╝  
-```
 
+</pre>
 ### **From-Scratch ML Pipeline · CSE382 Spring 2026**
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
