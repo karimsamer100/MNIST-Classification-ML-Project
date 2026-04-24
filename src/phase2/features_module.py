@@ -10,27 +10,42 @@ class PCAFromScratch:
         self.explained_variance_ratio = None
 
     def fit(self, X):
+        # checks
+        if self.n_components <= 0:
+            raise ValueError("n_components must be positive")
+
+        if self.n_components > X.shape[1]:
+            raise ValueError("n_components cannot exceed number of features")
+
+        # center data
         self.mean = np.mean(X, axis=0)
         X_centered = X - self.mean
 
-        covariance_matrix = np.cov(X_centered, rowvar=False)
+        # manual covariance (better than np.cov for project requirement)
+        covariance_matrix = np.dot(X_centered.T, X_centered) / (X_centered.shape[0] - 1)
 
+        # eigen decomposition
         eigenvalues, eigenvectors = np.linalg.eigh(covariance_matrix)
 
+        # sort descending
         sorted_indices = np.argsort(eigenvalues)[::-1]
         eigenvalues = eigenvalues[sorted_indices]
         eigenvectors = eigenvectors[:, sorted_indices]
 
+        # select top components
         self.explained_variance = eigenvalues[:self.n_components]
         self.components = eigenvectors[:, :self.n_components]
 
+        # explained variance ratio
         total_variance = np.sum(eigenvalues)
         self.explained_variance_ratio = self.explained_variance / total_variance
 
     def transform(self, X):
+        if self.mean is None or self.components is None:
+            raise ValueError("PCA must be fitted before calling transform")
+
         X_centered = X - self.mean
-        X_projected = np.dot(X_centered, self.components)
-        return X_projected
+        return np.dot(X_centered, self.components)
 
     def fit_transform(self, X):
         self.fit(X)

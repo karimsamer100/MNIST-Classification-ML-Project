@@ -5,6 +5,9 @@ def accuracy_score(y_true, y_pred):
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
 
+    if len(y_true) == 0:
+        raise ValueError("y_true cannot be empty")
+
     correct_predictions = np.sum(y_true == y_pred)
     return correct_predictions / len(y_true)
 
@@ -24,9 +27,13 @@ def confusion_matrix_multiclass(y_true, y_pred, num_classes=None):
     return cm
 
 
-def precision_recall_f1_multiclass(y_true, y_pred, num_classes=None, average="macro"):
+def precision_recall_f1_multiclass(y_true, y_pred, num_classes=None):
+    
     if len(y_true) != len(y_pred):
         raise ValueError("y_true and y_pred must have the same length")
+
+    if len(y_true) == 0:
+        raise ValueError("y_true cannot be empty")
 
     cm = confusion_matrix_multiclass(y_true, y_pred, num_classes)
 
@@ -39,16 +46,19 @@ def precision_recall_f1_multiclass(y_true, y_pred, num_classes=None, average="ma
         fp = np.sum(cm[:, class_index]) - tp
         fn = np.sum(cm[class_index, :]) - tp
 
+        # precision
         if tp + fp == 0:
             precision = 0.0
         else:
             precision = tp / (tp + fp)
 
+        # recall
         if tp + fn == 0:
             recall = 0.0
         else:
             recall = tp / (tp + fn)
 
+        # f1
         if precision + recall == 0:
             f1 = 0.0
         else:
@@ -58,28 +68,18 @@ def precision_recall_f1_multiclass(y_true, y_pred, num_classes=None, average="ma
         recalls.append(recall)
         f1_scores.append(f1)
 
-    precisions = np.array(precisions)
-    recalls = np.array(recalls)
-    f1_scores = np.array(f1_scores)
+    # macro average
+    precision_macro = np.mean(precisions)
+    recall_macro = np.mean(recalls)
+    f1_macro = np.mean(f1_scores)
 
-    if average == "macro":
-        return np.mean(precisions), np.mean(recalls), np.mean(f1_scores)
-
-    elif average == "weighted":
-        class_counts = np.bincount(y_true.astype(int), minlength=cm.shape[0])
-        total_count = np.sum(class_counts)
-
-        weighted_precision = np.sum(precisions * class_counts) / total_count
-        weighted_recall = np.sum(recalls * class_counts) / total_count
-        weighted_f1 = np.sum(f1_scores * class_counts) / total_count
-
-        return weighted_precision, weighted_recall, weighted_f1
-
-    else:
-        raise ValueError("average must be either 'macro' or 'weighted'")
+    return precision_macro, recall_macro, f1_macro
 
 
 def classification_report_multiclass(y_true, y_pred, num_classes=None):
+    if len(y_true) != len(y_pred):
+        raise ValueError("y_true and y_pred must have the same length")
+
     if num_classes is None:
         num_classes = int(max(np.max(y_true), np.max(y_pred))) + 1
 

@@ -1,0 +1,16 @@
+Setting,Model,Accuracy,Precision,Recall,F1
+Raw Validation,Logistic Regression,0.8827,0.8816,0.8809,0.8809
+Raw Validation,Gaussian Naive Bayes,0.4777,0.6294,0.4695,0.3726
+Raw Validation,Nearest Centroid,0.8054,0.8093,0.8020,0.8032
+
+Raw Test,Logistic Regression,0.8921,0.8910,0.8905,0.8903
+Raw Test,Gaussian Naive Bayes,0.4814,0.6355,0.4740,0.3770
+Raw Test,Nearest Centroid,0.8200,0.8231,0.8170,0.8180
+
+PCA Validation,Logistic Regression,0.8734,0.8726,0.8715,0.8713
+PCA Validation,Gaussian Naive Bayes,0.8670,0.8665,0.8659,0.8659
+PCA Validation,Nearest Centroid,0.8039,0.8076,0.8004,0.8016
+
+PCA Test,Logistic Regression,0.8840,0.8832,0.8824,0.8821
+PCA Test,Gaussian Naive Bayes,0.8785,0.8780,0.8778,0.8776
+PCA Test,Nearest Centroid,0.8162,0.8194,0.8131,0.8141
