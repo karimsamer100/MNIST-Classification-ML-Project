@@ -156,7 +156,7 @@ ML Project/
 | Model | Accuracy | Precision | Recall | F1 |
 |---|---|---|---|---|
 | Logistic Regression | `0.8827` | `0.8816` | `0.8809` | `0.8809` |
-| Gaussian Naive Bayes ⚠️ | `0.4777` | `0.6294` | `0.4695` | `0.3726` |
+| Gaussian Naive Bayes  | `0.4777` | `0.6294` | `0.4695` | `0.3726` |
 | Nearest Centroid | `0.8054` | `0.8093` | `0.8020` | `0.8032` |
 
 #### Test — Raw Features
@@ -164,7 +164,7 @@ ML Project/
 | Model | Accuracy | Precision | Recall | F1 |
 |---|---|---|---|---|
 | **Logistic Regression** | **`0.8921`** | **`0.8910`** | **`0.8905`** | **`0.8903`** |
-| Gaussian Naive Bayes ⚠️ | `0.4814` | `0.6355` | `0.4740` | `0.3770` |
+| Gaussian Naive Bayes  | `0.4814` | `0.6355` | `0.4740` | `0.3770` |
 | Nearest Centroid | `0.8200` | `0.8231` | `0.8170` | `0.8180` |
 
 #### Test — After PCA
@@ -172,7 +172,7 @@ ML Project/
 | Model | Accuracy | Precision | Recall | F1 |
 |---|---|---|---|---|
 | Logistic Regression | `0.8840` | `0.8832` | `0.8824` | `0.8821` |
-| Gaussian Naive Bayes ✅ | `0.8785` | `0.8780` | `0.8778` | `0.8776` |
+| Gaussian Naive Bayes  | `0.8785` | `0.8780` | `0.8778` | `0.8776` |
 | Nearest Centroid | `0.8162` | `0.8194` | `0.8131` | `0.8141` |
 
 ```
