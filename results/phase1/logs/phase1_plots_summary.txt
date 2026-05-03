@@ -1,0 +1,12 @@
+Phase 1 Plot Summary
+====================
+
+Section 4 figure: results/phase1/figures\section4_pca_cumulative_variance.png (50 components retain 90.37% variance)
+Section 7.3 figure: results/phase1/figures\section7_3_confusion_matrix_heatmaps.png
+Section 8 figure:   results/phase1/figures\section8_accuracy_comparison.png
+
+Test Accuracy Comparison
+------------------------
+KNN (k=3): raw=0.9991, pca=0.9991
+Logistic Regression: raw=0.9995, pca=0.9991
+Gaussian Naive Bayes: raw=0.9972, pca=0.9844
