@@ -1,247 +1,114 @@
 import os
-import csv
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 
-from data_module import load_mnist_csv, normalize_pixels, split_train_validation
-from features_module import apply_pca
-from models_module import KNN, GaussianNaiveBayes, MulticlassLogisticRegression
-from evaluation_module import accuracy_score, precision_recall_f1_multiclass
+
+RESULTS_DIR = "results/phase2"
+FIGURES_DIR = os.path.join(RESULTS_DIR, "figures")
+
+os.makedirs(FIGURES_DIR, exist_ok=True)
 
 
 # =========================
-# HELPER FUNCTIONS
+# RESULTS FROM YOUR RUN
 # =========================
 
-def stratified_subset(X, y, size, random_state=42):
-    rng = np.random.default_rng(random_state)
-
-    indices = []
-    classes = np.unique(y)
-    per_class = size // len(classes)
-
-    for c in classes:
-        class_indices = np.where(y == c)[0]
-        selected = rng.choice(class_indices, size=per_class, replace=False)
-        indices.extend(selected)
-
-    indices = np.array(indices)
-    rng.shuffle(indices)
-
-    return X[indices], y[indices]
+results = pd.DataFrame([
+    ["Raw", "Logistic Regression", 0.8921, 0.8903],
+    ["Raw", "Gaussian Naive Bayes", 0.4814, 0.3770],
+    ["Raw", "Nearest Centroid", 0.8200, 0.8180],
+    ["PCA", "Logistic Regression", 0.8840, 0.8821],
+    ["PCA", "Gaussian Naive Bayes", 0.8785, 0.8776],
+    ["PCA", "Nearest Centroid", 0.8162, 0.8141],
+], columns=["Setting", "Model", "Accuracy", "Macro F1"])
 
 
-def evaluate_model(model, X_train, y_train, X_eval, y_eval):
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_eval)
-
-    accuracy = accuracy_score(y_eval, predictions)
-    precision, recall, f1 = precision_recall_f1_multiclass(
-        y_eval, predictions, average="macro"
-    )
-
-    return {
-        "accuracy": accuracy,
-        "precision": precision,
-        "recall": recall,
-        "f1": f1
-    }
+final_cm = np.array([
+    [955, 0, 2, 3, 0, 2, 10, 1, 7, 0],
+    [0, 1100, 2, 4, 1, 2, 4, 0, 22, 0],
+    [13, 8, 869, 26, 19, 0, 21, 22, 46, 8],
+    [6, 1, 18, 890, 1, 36, 7, 15, 24, 12],
+    [1, 6, 5, 0, 895, 1, 12, 2, 9, 51],
+    [16, 7, 4, 49, 19, 714, 19, 11, 41, 12],
+    [16, 3, 8, 2, 14, 19, 890, 1, 5, 0],
+    [3, 23, 32, 3, 11, 0, 1, 907, 5, 43],
+    [10, 9, 12, 32, 10, 27, 14, 15, 830, 15],
+    [12, 9, 10, 12, 46, 15, 0, 27, 7, 871],
+])
 
 
-def ensure_output_folders():
-    os.makedirs("results/phase2/tables", exist_ok=True)
-    os.makedirs("results/phase2/figures", exist_ok=True)
-    os.makedirs("results/phase2/logs", exist_ok=True)
+learning_sizes = [0.2, 0.4, 0.6, 0.8, 1.0]
+train_f1 = [0.8939, 0.8878, 0.8859, 0.8860, 0.8849]
+val_f1 = [0.8766, 0.8801, 0.8790, 0.8798, 0.8809]
 
 
-# =========================
-# MAIN RESULTS GENERATION
-# =========================
+def plot_metric(metric_name, filename):
+    pivot = results.pivot(index="Model", columns="Setting", values=metric_name)
+
+    ax = pivot.plot(kind="bar", figsize=(9, 5))
+
+    plt.title(f"{metric_name} Comparison Before and After PCA")
+    plt.xlabel("Model")
+    plt.ylabel(metric_name)
+    plt.xticks(rotation=20)
+    plt.ylim(0, 1)
+    plt.grid(axis="y")
+
+    for container in ax.containers:
+        ax.bar_label(container, fmt="%.3f", fontsize=8)
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, filename), dpi=300)
+    plt.show()
+
+
+def plot_confusion_matrix():
+    plt.figure(figsize=(8, 6))
+    plt.imshow(final_cm, cmap='Blues')
+
+    plt.title("Final Model Confusion Matrix - Raw Logistic Regression")
+    plt.xlabel("Predicted Label")
+    plt.ylabel("True Label")
+
+    plt.xticks(range(10))
+    plt.yticks(range(10))
+
+    for i in range(10):
+        for j in range(10):
+            plt.text(j, i, str(final_cm[i, j]), ha="center", va="center", fontsize=7)
+
+    plt.colorbar()
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "final_confusion_matrix.png"), dpi=300)
+    plt.show()
+
+
+def plot_learning_curve():
+    plt.figure(figsize=(8, 5))
+
+    plt.plot(learning_sizes, train_f1, marker="o", label="Train F1")
+    plt.plot(learning_sizes, val_f1, marker="o", label="Validation F1")
+
+    plt.title("Learning Curve - Logistic Regression")
+    plt.xlabel("Training Data Fraction")
+    plt.ylabel("Macro F1 Score")
+    plt.grid()
+    plt.legend()
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "learning_curve.png"), dpi=300)
+    plt.show()
+
 
 def main():
-    ensure_output_folders()
+    plot_metric("Accuracy", "accuracy_comparison.png")
+    plot_metric("Macro F1", "f1_comparison.png")
+    plot_confusion_matrix()
+    plot_learning_curve()
 
-    # load data
-    X_train_full, y_train_full = load_mnist_csv("MNIST-data/mnist_train.csv")
-    X_test, y_test = load_mnist_csv("MNIST-data/mnist_test.csv")
-
-    X_train_full = normalize_pixels(X_train_full)
-    X_test = normalize_pixels(X_test)
-
-    X_train, X_val, y_train, y_val = split_train_validation(X_train_full, y_train_full)
-
-    # same subsets used in main.py
-    X_train_subset, y_train_subset = stratified_subset(X_train, y_train, 2000)
-    X_val_subset, y_val_subset = stratified_subset(X_val, y_val, 300)
-    X_test_subset, y_test_subset = stratified_subset(X_test, y_test, 300)
-
-    # -------------------------
-    # raw validation results
-    # -------------------------
-    raw_models = {
-        "KNN (k=1)": KNN(k=1),
-        "Logistic Regression": MulticlassLogisticRegression(
-            learning_rate=0.1,
-            num_iterations=300,
-            lambda_reg=0.0
-        ),
-        "Gaussian Naive Bayes": GaussianNaiveBayes()
-    }
-
-    raw_results = {}
-    for name, model in raw_models.items():
-        raw_results[name] = evaluate_model(
-            model,
-            X_train_subset, y_train_subset,
-            X_val_subset, y_val_subset
-        )
-
-    # -------------------------
-    # PCA validation results
-    # -------------------------
-    X_train_pca, X_val_pca, X_test_pca, pca_model = apply_pca(
-        X_train_subset,
-        X_val_subset,
-        X_test_subset,
-        n_components=50
-    )
-
-    pca_models = {
-        "KNN (k=1)": KNN(k=1),
-        "Logistic Regression": MulticlassLogisticRegression(
-            learning_rate=0.1,
-            num_iterations=300,
-            lambda_reg=0.0
-        ),
-        "Gaussian Naive Bayes": GaussianNaiveBayes()
-    }
-
-    pca_results = {}
-    for name, model in pca_models.items():
-        pca_results[name] = evaluate_model(
-            model,
-            X_train_pca, y_train_subset,
-            X_val_pca, y_val_subset
-        )
-
-    # -------------------------
-    # final test result
-    # -------------------------
-    final_model = KNN(k=1)
-    final_test_result = evaluate_model(
-        final_model,
-        X_train_pca, y_train_subset,
-        X_test_pca, y_test_subset
-    )
-
-    # -------------------------
-    # save validation comparison table
-    # -------------------------
-    validation_table_path = "results/phase2/tables/validation_comparison.csv"
-    with open(validation_table_path, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Feature Setting", "Model", "Accuracy", "Precision", "Recall", "F1"])
-
-        for model_name, metrics in raw_results.items():
-            writer.writerow([
-                "Raw",
-                model_name,
-                round(metrics["accuracy"], 4),
-                round(metrics["precision"], 4),
-                round(metrics["recall"], 4),
-                round(metrics["f1"], 4)
-            ])
-
-        for model_name, metrics in pca_results.items():
-            writer.writerow([
-                "PCA",
-                model_name,
-                round(metrics["accuracy"], 4),
-                round(metrics["precision"], 4),
-                round(metrics["recall"], 4),
-                round(metrics["f1"], 4)
-            ])
-
-    # -------------------------
-    # save final test result table
-    # -------------------------
-    final_test_table_path = "results/phase2/tables/final_test_result.csv"
-    with open(final_test_table_path, "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Chosen Model", "Feature Setting", "Accuracy", "Precision", "Recall", "F1"])
-        writer.writerow([
-            "KNN (k=1)",
-            "PCA (50 components)",
-            round(final_test_result["accuracy"], 4),
-            round(final_test_result["precision"], 4),
-            round(final_test_result["recall"], 4),
-            round(final_test_result["f1"], 4)
-        ])
-
-    # -------------------------
-    # plot validation F1 comparison
-    # -------------------------
-    models = list(raw_results.keys())
-    raw_f1 = [raw_results[name]["f1"] for name in models]
-    pca_f1 = [pca_results[name]["f1"] for name in models]
-
-    x = np.arange(len(models))
-    width = 0.35
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(x - width / 2, raw_f1, width, label="Raw Features")
-    plt.bar(x + width / 2, pca_f1, width, label="PCA Features")
-    plt.xticks(x, models, rotation=10)
-    plt.ylabel("Macro F1 Score")
-    plt.title("Phase 2 Validation Comparison: Raw vs PCA")
-    plt.ylim(0, 1.0)
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig("results/phase2/figures/validation_f1_comparison.png")
-    plt.close()
-
-    # -------------------------
-    # plot PCA explained variance
-    # -------------------------
-    cumulative_variance = np.cumsum(pca_model.explained_variance_ratio)
-    components = np.arange(1, len(cumulative_variance) + 1)
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(components, cumulative_variance, marker="o")
-    plt.xlabel("Number of Components")
-    plt.ylabel("Cumulative Explained Variance")
-    plt.title("PCA Cumulative Explained Variance")
-    plt.ylim(0, 1.05)
-    plt.grid(True)
-    plt.tight_layout()
-    plt.savefig("results/phase2/figures/pca_cumulative_variance.png")
-    plt.close()
-
-    # -------------------------
-    # save short summary log
-    # -------------------------
-    summary_path = "results/phase2/logs/phase2_summary.txt"
-    with open(summary_path, "w", encoding="utf-8") as file:
-        file.write("Phase 2 Summary\n")
-        file.write("====================\n\n")
-        file.write("Validation comparison was used for model and feature selection.\n")
-        file.write("Final chosen model: KNN (k=1) with PCA (50 components).\n\n")
-
-        file.write("Final Test Result:\n")
-        file.write(f"Accuracy : {final_test_result['accuracy']:.4f}\n")
-        file.write(f"Precision: {final_test_result['precision']:.4f}\n")
-        file.write(f"Recall   : {final_test_result['recall']:.4f}\n")
-        file.write(f"F1 Score : {final_test_result['f1']:.4f}\n\n")
-
-        file.write("Important note:\n")
-        file.write("These final test results were computed on a stratified test subset of 300 samples.\n")
-
-    print("Phase 2 result files generated successfully.")
-    print("Saved:", validation_table_path)
-    print("Saved:", final_test_table_path)
-    print("Saved: results/phase2/figures/validation_f1_comparison.png")
-    print("Saved: results/phase2/figures/pca_cumulative_variance.png")
-    print("Saved:", summary_path)
+    print("Plots saved in:")
+    print(FIGURES_DIR)
 
 
 if __name__ == "__main__":

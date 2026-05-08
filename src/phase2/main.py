@@ -179,40 +179,49 @@ def print_confusion_matrices(title, results):
         print(metrics["confusion_matrix"])
 
 
-def get_best_model(raw_test_results, pca_test_results):
+def get_best_model_from_validation(raw_validation_results, pca_validation_results):
     best_setting = None
     best_model_name = None
-    best_metrics = None
+    best_validation_metrics = None
     best_f1 = -1
 
-    for model_name, metrics in raw_test_results.items():
+    for model_name, metrics in raw_validation_results.items():
         if metrics["f1"] > best_f1:
             best_f1 = metrics["f1"]
             best_setting = "Raw Features"
             best_model_name = model_name
-            best_metrics = metrics
+            best_validation_metrics = metrics
 
-    for model_name, metrics in pca_test_results.items():
+    for model_name, metrics in pca_validation_results.items():
         if metrics["f1"] > best_f1:
             best_f1 = metrics["f1"]
             best_setting = "PCA Features"
             best_model_name = model_name
-            best_metrics = metrics
+            best_validation_metrics = metrics
 
-    return best_setting, best_model_name, best_metrics
+    return best_setting, best_model_name, best_validation_metrics
 
 
-def print_final_model(best_setting, best_model_name, best_metrics):
-    print_section("Final Model")
+def print_final_model(best_setting, best_model_name, validation_metrics, test_metrics):
+    print_section("Final Model Selection")
 
-    print(f"Best setting: {best_setting}")
+    print("Final model was selected using validation Macro F1-score.")
+    print("The test set was used only once for final evaluation.")
+
+    print(f"\nBest setting: {best_setting}")
     print(f"Best model  : {best_model_name}")
 
-    print("\nTest Performance:")
-    print(f"Accuracy : {best_metrics['accuracy']:.4f}")
-    print(f"Precision: {best_metrics['precision']:.4f}")
-    print(f"Recall   : {best_metrics['recall']:.4f}")
-    print(f"F1 Score : {best_metrics['f1']:.4f}")
+    print("\nValidation Performance:")
+    print(f"Accuracy : {validation_metrics['accuracy']:.4f}")
+    print(f"Precision: {validation_metrics['precision']:.4f}")
+    print(f"Recall   : {validation_metrics['recall']:.4f}")
+    print(f"F1 Score : {validation_metrics['f1']:.4f}")
+
+    print("\nFinal Test Performance:")
+    print(f"Accuracy : {test_metrics['accuracy']:.4f}")
+    print(f"Precision: {test_metrics['precision']:.4f}")
+    print(f"Recall   : {test_metrics['recall']:.4f}")
+    print(f"F1 Score : {test_metrics['f1']:.4f}")
 
 
 # =========================
@@ -320,11 +329,22 @@ def main():
     # FINAL MODEL
     # =========================
 
-    best_setting, best_model_name, best_metrics = get_best_model(
-        raw_test_results, pca_test_results
+    best_setting, best_model_name, best_validation_metrics = get_best_model_from_validation(
+        raw_validation_results,
+        pca_validation_results,
     )
 
-    print_final_model(best_setting, best_model_name, best_metrics)
+    if best_setting == "Raw Features":
+        best_test_metrics = raw_test_results[best_model_name]
+    else:
+        best_test_metrics = pca_test_results[best_model_name]
+
+    print_final_model(
+        best_setting,
+        best_model_name,
+        best_validation_metrics,
+        best_test_metrics,
+    )
 
     print_section("End of Results")
 

@@ -1,0 +1,88 @@
+import numpy as np
+
+from data_module import load_mnist_csv, normalize_pixels, split_train_validation
+from features_module import apply_pca
+from models_module import MulticlassLogisticRegression
+from evaluation_module import accuracy_score, precision_recall_f1_multiclass
+
+
+RANDOM_STATE = 42
+
+TRAIN_PATH = "MNIST-data/mnist_train.csv"
+TEST_PATH = "MNIST-data/mnist_test.csv"
+
+VALIDATION_SIZE = 0.2
+NUM_CLASSES = 10
+
+LEARNING_RATE = 0.1
+ITERATIONS = 300
+
+LAMBDA_VALUES = [0.0, 0.001, 0.01, 0.1, 1.0]
+
+
+def evaluate_model(model, X_eval, y_eval):
+    predictions = model.predict(X_eval)
+
+    precision, recall, f1 = precision_recall_f1_multiclass(
+        y_eval,
+        predictions,
+        num_classes=NUM_CLASSES,
+    )
+
+    accuracy = accuracy_score(y_eval, predictions)
+
+    return accuracy, precision, recall, f1
+
+
+def main():
+    X_train_full, y_train_full = load_mnist_csv(TRAIN_PATH)
+    X_test, y_test = load_mnist_csv(TEST_PATH)
+
+    X_train_full = normalize_pixels(X_train_full)
+    X_test = normalize_pixels(X_test)
+
+    X_train, X_val, y_train, y_val = split_train_validation(
+        X_train_full,
+        y_train_full,
+        val_size=VALIDATION_SIZE,
+        random_state=RANDOM_STATE,
+    )
+
+    print("\nL2 Regularization Experiment")
+    print("=" * 80)
+    print(f"{'Lambda':<12} {'Val Accuracy':>12} {'Val Precision':>14} {'Val Recall':>12} {'Val F1':>10}")
+    print("-" * 80)
+
+    best_lambda = None
+    best_f1 = -1
+
+    for lambda_value in LAMBDA_VALUES:
+        model = MulticlassLogisticRegression(
+            learning_rate=LEARNING_RATE,
+            num_iterations=ITERATIONS,
+            lambda_reg=lambda_value,
+        )
+
+        model.fit(X_train, y_train)
+
+        accuracy, precision, recall, f1 = evaluate_model(model, X_val, y_val)
+
+        print(
+            f"{lambda_value:<12} "
+            f"{accuracy:>12.4f} "
+            f"{precision:>14.4f} "
+            f"{recall:>12.4f} "
+            f"{f1:>10.4f}"
+        )
+
+        if f1 > best_f1:
+            best_f1 = f1
+            best_lambda = lambda_value
+
+    print("\nBest L2 lambda based on validation Macro F1:")
+    print(f"lambda_reg = {best_lambda}")
+    print(f"Validation F1 = {best_f1:.4f}")
+
+
+if __name__ == "__main__":
+    main()

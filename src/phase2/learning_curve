@@ -1,0 +1,116 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+from data_module import load_mnist_csv, normalize_pixels, split_train_validation
+from models_module import MulticlassLogisticRegression
+from evaluation_module import accuracy_score, precision_recall_f1_multiclass
+
+
+RANDOM_STATE = 42
+
+TRAIN_PATH = "MNIST-data/mnist_train.csv"
+
+VALIDATION_SIZE = 0.2
+NUM_CLASSES = 10
+
+LEARNING_RATE = 0.1
+ITERATIONS = 300
+LAMBDA = 0.0
+
+# percentages of training data
+TRAIN_SIZES = [0.2, 0.4, 0.6, 0.8, 1.0]
+
+
+def evaluate_model(model, X, y):
+    preds = model.predict(X)
+
+    precision, recall, f1 = precision_recall_f1_multiclass(
+        y, preds, num_classes=NUM_CLASSES
+    )
+
+    acc = accuracy_score(y, preds)
+
+    return acc, f1
+
+def stratified_subsample(X, y, fraction, random_state=42):
+    rng = np.random.default_rng(random_state)
+
+    selected_indices = []
+
+    for cls in np.unique(y):
+        class_indices = np.where(y == cls)[0]
+        class_indices = rng.permutation(class_indices)
+
+        num_samples = int(len(class_indices) * fraction)
+        if num_samples < 1:
+            num_samples = 1
+
+        selected_indices.extend(class_indices[:num_samples])
+
+    selected_indices = rng.permutation(np.array(selected_indices))
+
+    return X[selected_indices], y[selected_indices]
+
+
+def main():
+    X_train_full, y_train_full = load_mnist_csv(TRAIN_PATH)
+    X_train_full = normalize_pixels(X_train_full)
+
+    X_train, X_val, y_train, y_val = split_train_validation(
+        X_train_full,
+        y_train_full,
+        val_size=VALIDATION_SIZE,
+        random_state=RANDOM_STATE,
+    )
+
+    train_f1_scores = []
+    val_f1_scores = []
+
+    print("\nLearning Curve (Logistic Regression)")
+    print("=" * 80)
+
+    for frac in TRAIN_SIZES:
+        X_sub, y_sub = stratified_subsample(
+            X_train,
+            y_train,
+            frac,
+            random_state=RANDOM_STATE,
+        )
+
+        size = len(X_sub)
+
+        model = MulticlassLogisticRegression(
+            learning_rate=LEARNING_RATE,
+            num_iterations=ITERATIONS,
+            lambda_reg=LAMBDA,
+        )
+
+        model.fit(X_sub, y_sub)
+
+        train_acc, train_f1 = evaluate_model(model, X_sub, y_sub)
+        val_acc, val_f1 = evaluate_model(model, X_val, y_val)
+
+        train_f1_scores.append(train_f1)
+        val_f1_scores.append(val_f1)
+
+        print(f"Train size: {size} | Train F1: {train_f1:.4f} | Val F1: {val_f1:.4f}")
+
+    # ===== PLOT =====
+    plt.figure()
+
+    plt.plot(TRAIN_SIZES, train_f1_scores, marker='o', label='Train F1')
+    plt.plot(TRAIN_SIZES, val_f1_scores, marker='o', label='Validation F1')
+
+    plt.xlabel("Training Data Fraction")
+    plt.ylabel("Macro F1 Score")
+    plt.title("Learning Curve - Logistic Regression")
+
+    plt.legend()
+    plt.grid()
+
+    plt.savefig("learning_curve.png")
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
