@@ -22,7 +22,16 @@
 
 </div>
 
-## Docker Assignment
+## Docker Hub
+
+Docker Hub Repository:
+
+https://hub.docker.com/r/karimsamer/mnist-classification-ml
+
+### Pull the Docker Image
+
+```bash
+docker pull karimsamer/mnist-classification-ml:latest
 
 ### Project Overview
 
