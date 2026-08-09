@@ -22,6 +22,77 @@
 
 </div>
 
+## Docker Assignment
+
+### Project Overview
+
+This repository contains a from-scratch machine-learning pipeline for classifying handwritten MNIST digits. The Docker image runs the existing Phase 1 binary classifier, which distinguishes digit 0 from digit 1.
+
+### Technologies Used
+
+- Python 3.12
+- NumPy
+- pandas
+- MNIST CSV dataset
+
+### Project Structure
+
+```text
+ML Project/
+├── Dockerfile
+├── requirements.txt
+├── .dockerignore
+├── MNIST-data/
+│   ├── mnist_train.csv
+│   └── mnist_test.csv
+└── src/
+    └── phase1/
+        ├── main.py
+        ├── data_module.py
+        ├── features_module.py
+        ├── models_module.py
+        └── evaluation_module.py
+```
+
+### Prerequisites
+
+- For local execution: Python 3.12 and the MNIST CSV files in `MNIST-data/`.
+- For Docker execution: Docker Desktop or another Docker Engine installation.
+
+The dataset files are required at build time. They are kept locally in this repository and are not downloaded by the application.
+
+### Installation
+
+From the repository root, install the runtime dependencies for local execution:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### How to Run Locally
+
+Run the existing Phase 1 application from the repository root:
+
+```bash
+python src/phase1/main.py
+```
+
+### How to Build the Docker Image
+
+```bash
+docker build -t mnist-phase1:latest .
+```
+
+### How to Run the Docker Container
+
+```bash
+docker run --rm --name mnist-phase1 mnist-phase1:latest
+```
+
+### Docker Hub Image/Repository
+
+Docker Hub URL: `DOCKER_HUB_URL_TO_BE_PROVIDED`
+
 ---
 
 ## `>_ what is this`

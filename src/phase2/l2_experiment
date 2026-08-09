@@ -1,7 +1,6 @@
 import numpy as np
 
 from data_module import load_mnist_csv, normalize_pixels, split_train_validation
-from features_module import apply_pca
 from models_module import MulticlassLogisticRegression
 from evaluation_module import accuracy_score, precision_recall_f1_multiclass
 

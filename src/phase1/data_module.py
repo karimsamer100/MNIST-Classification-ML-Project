@@ -33,8 +33,6 @@ def normalize_pixels(X):
     return X_normalized
 
 
-
-
 def split_train_validation(X, y, val_size=0.2, random_state=42):
     # basic checks
     if len(X) != len(y):
